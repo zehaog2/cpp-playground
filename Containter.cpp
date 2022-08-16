@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstdlib>
 using namespace std;
-//checking for github update
+
 int convert_key(int x){ // x's digits' sum
 	int sum =0;
 	int y = 0;
@@ -108,18 +108,17 @@ void search(multimap<int,int> &mmap, vector<int>&vv,int num){
 
 void menu(){
 	cout << "               MENU\n";
-	cout << "1 -> add           2 -> delete\n";        // done, improve
-	cout << "3 -> search        4 -> show size\n";     // improve, done
-	cout << "5 -> rename        6 -> show menu\n";     // not done, done 
+	cout << "1 -> add           2 -> delete\n";        // done, done
+	cout << "3 -> search        4 -> show size\n";     // done, done
+	cout << "5 -> show all      6 -> show menu\n";     // done, done 
 	cout << "7 -> clear         0 -> generator\n\n";   // done, done
 }
-
 
 int main() {
 	multimap<int, int> SAYO;
 	deque<int>A={};
 	vector<int>vv;
-	int instruction, num, rand_num,count, delete_;
+	int instruction, num, rand_num,count, delete_, max_limit;
 	char option;
 	string answer;
 	
@@ -133,7 +132,8 @@ int main() {
 		switch(instruction){
 			case 0:
 				num = 0;
-				printf("Please generate less than a million elements pls: ");
+				//check map size
+				printf("Numbers of elements to generate: "); // give two options: add to old generation, create new map
 				scanf("%d",&num);
 				while(num >= 100000000){ // int allows 8 digits
 					count = 1;
@@ -141,8 +141,10 @@ int main() {
 					count++;
 					scanf("%d",&num);
 					}
+				printf("Give the maximum limit: ");
+				cin >> max_limit;
 				while(num>0){
-					rand_num = rand()%10000000 + 1;
+					rand_num = rand()%max_limit + 1; // let user play around with this
 					add(SAYO,rand_num);
 					num--;
 					}
@@ -160,43 +162,39 @@ int main() {
 			case 2:// implementing the multimap erase function
 				cout << "Delete options:\n";
 				cout << "A: a number\n";
-				cout << "B: leave only one copy\n";
-				cout << "C: all copies\n";
-				cout << "D: key\n";
+				cout << "B: all copies\n";
+				cout << "C: key\n";
 				cout << "--> ";
 				cin >> option;
 				if(option == 'A'){
 					cout << "--> ";
 					cin >> delete_;
 					typedef multimap<int, int>::iterator iterator;
-					pair<iterator, iterator> iterpair1 = SAYO.equal_range(delete_);
+					pair<iterator, iterator> iterpair1 = SAYO.equal_range(convert_key(delete_)); // iterate through key
 					iterator it2 = iterpair1.first;
 					for (; it2 != iterpair1.second;) {
-    					if (it2->second == 23) {
+    					if (it2->second == delete_) { // deleting first number found
       	  					it2 = SAYO.erase(it2);
 							printf(" Done.\n");
 							break;
 						}else{
 							it2++; // delete one copy of the number
-							printf(" Not found.\n");
    							}
-						}
-				} else if(option == 'B'){
-					cout << "--> ";
-				} else if(option == 'C'){
-					cout << "--> ";
+						} 
+				} else if(option == 'B'){ // delete all copies of the element
+					cout << "--> "; 
 					cin >> delete_;
 					typedef multimap<int, int>::iterator iterator;
-					pair<iterator, iterator> iterpair2 = SAYO.equal_range(delete_);
+					pair<iterator, iterator> iterpair2 = SAYO.equal_range(convert_key(delete_));
 					iterator it3 = iterpair2.first;
 					for (; it3 != iterpair2.second;) {
-    					if (it3->second == 23) {
+    					if (it3->second == delete_)
       	  					it3 = SAYO.erase(it3);
-						}else{
-							it3++;// tested and confirmed, delete all copies of the number 
-   						}
+						else
+							it3++;
 					}
-				} else if(option =='D'){
+					printf("Done. \n");
+				} else if(option =='C'){ // delete whole keys, should refrain from using
 						cout << "Deleting a key will delete all elements associated with the key.";
 						cout << "Which key to delete? (type 0 to return to menu) ";
 						cin >> num;
@@ -204,6 +202,7 @@ int main() {
 							break; // return to menu
 						} else{	
 							SAYO.erase(num);
+							printf("Done. \n");
 							break;
 						}
 				} else{
@@ -216,18 +215,21 @@ int main() {
 				search(SAYO,vv, num);
 				break;
 			case 4:
-				cout <<SAYO.size() << " elements in container.\n";
+				cout <<SAYO.size() << " elements in container.\n"; // show size of container
+				break;
 			case 5:
-				
+				for (multimap<int,int>::iterator it=SAYO.begin(); it!=SAYO.end(); ++it)
+    				cout << (*it).second << ' '; // display all numbers without keys
+				cout <<"\n";
 				break;
 			case 6:
-				menu();
+				menu(); // return to menu
 				break;
 			case 7:
 				cout << "Are you sure you want to delete the container? (YES)\n";
 				cin >> answer;
 				if(answer=="YES"){
-					SAYO.clear();
+					SAYO.clear(); // delete container
 				} break;
 			default:
 				cout<<"Please enter a valid instruction:\n";
